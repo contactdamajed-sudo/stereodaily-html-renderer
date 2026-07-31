@@ -35,7 +35,14 @@ export default async function handler(req, res) {
     });
 
     await page.goto(targetUrl, { waitUntil: 'networkidle0', timeout: 30000 });
-    await new Promise((resolve) => setTimeout(resolve, 4000));
+
+    await page.evaluate(async () => {
+      if (window.Translera && typeof window.Translera.translate === 'function') {
+        await window.Translera.translate();
+      }
+    });
+
+    await new Promise((resolve) => setTimeout(resolve, 5000));
 
     const renderedHtml = await page.content();
     await browser.close();
