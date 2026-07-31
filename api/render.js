@@ -26,8 +26,8 @@ export default async function handler(req, res) {
 
     const page = await browser.newPage();
     
-    await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 15000 });
-    await new Promise((resolve) => setTimeout(resolve, 1500));
+    await page.goto(targetUrl, { waitUntil: 'networkidle0', timeout: 30000 });
+    await new Promise((resolve) => setTimeout(resolve, 4000));
 
     const renderedHtml = await page.content();
     await browser.close();
