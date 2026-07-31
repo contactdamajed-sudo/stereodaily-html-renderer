@@ -1,5 +1,6 @@
 import chromium from '@sparticuz/chromium';
 import puppeteer from 'puppeteer-core';
+import path from 'path';
 
 export default async function handler(req, res) {
   const targetUrl = req.query.url;
@@ -8,10 +9,15 @@ export default async function handler(req, res) {
   }
 
   try {
+    const executablePath = await chromium.executablePath();
+
+    // Direct the Linux dynamic linker to libnspr4.so and libnss3.so
+    process.env.LD_LIBRARY_PATH = path.dirname(executablePath);
+
     const browser = await puppeteer.launch({
       args: chromium.args,
       defaultViewport: chromium.defaultViewport,
-      executablePath: await chromium.executablePath(),
+      executablePath,
       headless: chromium.headless,
     });
 
