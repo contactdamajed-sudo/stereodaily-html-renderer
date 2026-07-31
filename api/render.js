@@ -1,5 +1,6 @@
 import chromium from '@sparticuz/chromium-min';
 import puppeteer from 'puppeteer-core';
+import path from 'path';
 
 export default async function handler(req, res) {
   const targetUrl = req.query.url;
@@ -11,6 +12,9 @@ export default async function handler(req, res) {
     const executablePath = await chromium.executablePath(
       'https://github.com/Sparticuz/chromium/releases/download/v126.0.0/chromium-v126.0.0-pack.tar'
     );
+
+    // Tell Linux where to locate extracted libraries like libnss3.so
+    process.env.LD_LIBRARY_PATH = path.dirname(executablePath);
 
     const browser = await puppeteer.launch({
       args: chromium.args,
