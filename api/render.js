@@ -36,13 +36,20 @@ export default async function handler(req, res) {
 
     await page.goto(targetUrl, { waitUntil: 'networkidle0', timeout: 30000 });
 
-    await page.evaluate(async () => {
-      if (window.Translera && typeof window.Translera.translate === 'function') {
-        await window.Translera.translate();
-      }
+    await page.mouse.move(100, 100);
+    await page.mouse.down();
+    await page.mouse.up();
+
+    await page.evaluate(() => {
+      window.scrollTo(0, 500);
+      window.dispatchEvent(new Event('mousemove'));
+      window.dispatchEvent(new Event('scroll'));
+      window.dispatchEvent(new Event('touchstart'));
+      window.dispatchEvent(new Event('keydown'));
     });
 
-    await new Promise((resolve) => setTimeout(resolve, 5000));
+    await page.waitForNetworkIdle({ idleTime: 1000, timeout: 10000 }).catch(() => {});
+    await new Promise((resolve) => setTimeout(resolve, 3000));
 
     const renderedHtml = await page.content();
     await browser.close();
