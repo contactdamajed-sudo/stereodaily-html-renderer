@@ -18,14 +18,22 @@ export default async function handler(req, res) {
     process.env.LD_LIBRARY_PATH = `${execDir}:${process.env.LD_LIBRARY_PATH || ''}`;
 
     const browser = await puppeteer.launch({
-      args: chromium.args,
+      args: [...chromium.args, '--no-sandbox', '--disable-setuid-sandbox'],
       defaultViewport: chromium.defaultViewport,
       executablePath,
       headless: chromium.headless,
     });
 
     const page = await browser.newPage();
-    
+
+    await page.setUserAgent(
+      'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36'
+    );
+
+    await page.setExtraHTTPHeaders({
+      'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
+    });
+
     await page.goto(targetUrl, { waitUntil: 'networkidle0', timeout: 30000 });
     await new Promise((resolve) => setTimeout(resolve, 4000));
 
