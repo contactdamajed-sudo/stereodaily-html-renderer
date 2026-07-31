@@ -9,10 +9,13 @@ export default async function handler(req, res) {
   }
 
   try {
-    const executablePath = await chromium.executablePath();
+    if (typeof chromium.setGraphicsMode === 'function') {
+      chromium.setGraphicsMode(false);
+    }
 
-    // Direct the Linux dynamic linker to libnspr4.so and libnss3.so
-    process.env.LD_LIBRARY_PATH = path.dirname(executablePath);
+    const executablePath = await chromium.executablePath();
+    const execDir = path.dirname(executablePath);
+    process.env.LD_LIBRARY_PATH = `${execDir}:${process.env.LD_LIBRARY_PATH || ''}`;
 
     const browser = await puppeteer.launch({
       args: chromium.args,
@@ -23,16 +26,12 @@ export default async function handler(req, res) {
 
     const page = await browser.newPage();
     
-    // Load page and wait for network activity to settle
     await page.goto(targetUrl, { waitUntil: 'networkidle2', timeout: 15000 });
-    
-    // Give Translera 1.5 seconds to finish updating the DOM
     await new Promise((resolve) => setTimeout(resolve, 1500));
 
     const renderedHtml = await page.content();
     await browser.close();
 
-    // Set cache header so Cloudflare caches this result
     res.setHeader('Content-Type', 'text/html; charset=utf-8');
     res.setHeader('Cache-Control', 'public, max-age=15552000, s-maxage=15552000');
     return res.status(200).send(renderedHtml);
