@@ -34,11 +34,7 @@ export default async function handler(req, res) {
       'Accept-Language': 'fr-FR,fr;q=0.9,en-US;q=0.8,en;q=0.7',
     });
 
-    await page.goto(targetUrl, { waitUntil: 'networkidle0', timeout: 30000 });
-
-    await page.mouse.move(100, 100);
-    await page.mouse.down();
-    await page.mouse.up();
+    await page.goto(targetUrl, { waitUntil: 'domcontentloaded', timeout: 25000 });
 
     await page.evaluate(() => {
       window.scrollTo(0, 500);
@@ -48,8 +44,7 @@ export default async function handler(req, res) {
       window.dispatchEvent(new Event('keydown'));
     });
 
-    await page.waitForNetworkIdle({ idleTime: 1000, timeout: 10000 }).catch(() => {});
-    await new Promise((resolve) => setTimeout(resolve, 3000));
+    await new Promise((resolve) => setTimeout(resolve, 6000));
 
     const renderedHtml = await page.content();
     await browser.close();
